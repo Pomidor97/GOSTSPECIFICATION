@@ -33,14 +33,48 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="RevitAPI">
+          <HintPath>..\..\Новая папка (6)\API\RevitAPI.dll</HintPath>
+        </Reference>
+        <Reference Include="RevitAPIUI">
+          <HintPath>..\..\Новая папка (6)\API\RevitAPIUI.dll</HintPath>
+        </Reference>
         <Reference Include="System"/>
         <Reference Include="System.Core"/>
         <Reference Include="System.Data"/>
         <Reference Include="System.Xml"/>
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Class1.cs"/>
+        <Compile Include="Constants\CategoryConstants.cs" />
+        <Compile Include="Constants\ErrorMessages.cs" />
+        <Compile Include="Core\Commands\AutoScheduleCommand.cs" />
+        <Compile Include="Core\Commands\CopyParametersCommand.cs" />
+        <Compile Include="Core\Commands\NumberingCommand.cs" />
+        <Compile Include="Core\Handlers\DuctHandler.cs" />
+        <Compile Include="Core\Handlers\EquipmentHandler.cs" />
+        <Compile Include="Core\Handlers\FittingHandler.cs" />
+        <Compile Include="Core\Handlers\InsulationHandler.cs" />
+        <Compile Include="Core\Handlers\PipeHandler.cs" />
+        <Compile Include="Core\Services\NumberingService.cs" />
+        <Compile Include="Core\Services\ParameterCopyService.cs" />
+        <Compile Include="Core\Services\ScheduleGenerationService.cs" />
+        <Compile Include="Helpers\ParameterHelper.cs" />
+        <Compile Include="Helpers\ParameterNames.cs" />
+        <Compile Include="Helpers\RevitElementHelper.cs" />
+        <Compile Include="Helpers\UnitConversionHelper.cs" />
+        <Compile Include="Helpers\ValidationHelper.cs" />
+        <Compile Include="Infrastructure\App.cs" />
+        <Compile Include="Infrastructure\RibbonBuilder.cs" />
+        <Compile Include="Models\ElementCategory.cs" />
+        <Compile Include="Models\ParameterMapping.cs" />
+        <Compile Include="Models\SystemInfo.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+    </ItemGroup>
+    <ItemGroup>
+      <Folder Include="Resources\" />
+    </ItemGroup>
+    <ItemGroup>
+      <Content Include="README.md" />
     </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
