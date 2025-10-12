@@ -1,13 +1,12 @@
-﻿using System;
-using Autodesk.Revit.UI;
-
+﻿using Autodesk.Revit.UI;
+using System;
 
 namespace GOSTSpec.Infrastructure
 {
     /// <summary>
     /// Главный класс приложения Revit
     /// </summary>
-    public class App:IExternalApplication
+    public class App : IExternalApplication
     {
         public Result OnStartup(UIControlledApplication application)
         {
@@ -18,10 +17,10 @@ namespace GOSTSpec.Infrastructure
 
                 return Result.Succeeded;
             }
-            catch (Exception e)
+            catch (Exception ex)
             {
                 TaskDialog.Show("Ошибка запуска", 
-                    $"Не удалось инициализировать плагин GOSTSpec:\n{e.Message}");
+                    $"Не удалось инициализировать плагин GOSTSpec:\n{ex.Message}");
                 return Result.Failed;
             }
         }

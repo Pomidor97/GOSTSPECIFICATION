@@ -1,15 +1,15 @@
-﻿namespace GOSTSpec.Helpers
+﻿namespace GOSTSpec.Constants
 {
     /// <summary>
-    /// Имена параметров для записи и чтения
+    /// Имена параметров для чтения и записи
     /// </summary>
-    public class ParameterNames
+    public static class ParameterNames
     {
-        //Системные параметры
+        // Системные параметры
         public const string System = "С_Система";
         public const string Order = "С_Сортировка";
         public const string Position = "С_Позиция";
-        
+
         // Исходные параметры (источник)
         public const string SourceName = "KAZGOR_Наименование";
         public const string SourceMark = "KAZGOR_Марка";
@@ -25,7 +25,7 @@
         public const string SourceWidth = "KAZGOR_Размер_Ширина";
         public const string SourceInsulationSize = "KAZGOR_Диаметр изоляции";
         public const string SourceLength = "KAZGOR_Размер_Длина";
-        
+
         // Целевые параметры (назначение)
         public const string TargetName = "С_Наименование";
         public const string TargetMark = "С_Марка";
@@ -35,7 +35,7 @@
         public const string TargetUnit = "С_Единица измерения";
         public const string TargetNote = "С_Примечание";
         public const string TargetCount = "С_Количество";
-        
+
         // Встроенные параметры Revit
         public const string Length = "Длина";
         public const string Area = "Площадь";
@@ -50,7 +50,7 @@
         public const string InnerDiameter = "Внутренний диаметр";
         public const string TypeName = "Имя типа";
         public const string CountingType = "Тип_подсчета";
-        
+
         // Глобальные параметры
         public const string GlobalReserve = "Запас";
 

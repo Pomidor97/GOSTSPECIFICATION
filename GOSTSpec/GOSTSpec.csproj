@@ -33,6 +33,10 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <ItemGroup>
+        <Reference Include="ic4dotnet, Version=1.3.0.3125, Culture=neutral, processorArchitecture=MSIL">
+          <HintPath>..\packages\ic4dotnet.1.3.0.3125\lib\net45\ic4dotnet.dll</HintPath>
+        </Reference>
+        <Reference Include="PresentationCore" />
         <Reference Include="RevitAPI">
           <HintPath>..\..\Новая папка (6)\API\RevitAPI.dll</HintPath>
         </Reference>
@@ -50,9 +54,14 @@
         <Compile Include="Core\Commands\AutoScheduleCommand.cs" />
         <Compile Include="Core\Commands\CopyParametersCommand.cs" />
         <Compile Include="Core\Commands\NumberingCommand.cs" />
+        <Compile Include="Core\Handlers\BaseElementHandler.cs" />
         <Compile Include="Core\Handlers\DuctHandler.cs" />
+        <Compile Include="Core\Handlers\ElementHandlerFactory.cs" />
         <Compile Include="Core\Handlers\EquipmentHandler.cs" />
         <Compile Include="Core\Handlers\FittingHandler.cs" />
+        <Compile Include="Core\Handlers\FlexElementHandlers.cs" />
+        <Compile Include="Core\Handlers\GeneralElementHandler.cs" />
+        <Compile Include="Core\Handlers\IElementHandler.cs" />
         <Compile Include="Core\Handlers\InsulationHandler.cs" />
         <Compile Include="Core\Handlers\PipeHandler.cs" />
         <Compile Include="Core\Services\NumberingService.cs" />
@@ -76,7 +85,17 @@
     <ItemGroup>
       <Content Include="README.md" />
     </ItemGroup>
+    <ItemGroup>
+      <None Include="packages.config" />
+    </ItemGroup>
     <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets"/>
+    <Import Project="..\packages\ic4dotnet.1.3.0.3125\build\ic4dotnet.targets" Condition="Exists('..\packages\ic4dotnet.1.3.0.3125\build\ic4dotnet.targets')" />
+    <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+      <PropertyGroup>
+        <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105.The missing file is {0}.</ErrorText>
+      </PropertyGroup>
+      <Error Condition="!Exists('..\packages\ic4dotnet.1.3.0.3125\build\ic4dotnet.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\ic4dotnet.1.3.0.3125\build\ic4dotnet.targets'))" />
+    </Target>
     <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
          Other similar extension points exist, see Microsoft.Common.targets.
     <Target Name="BeforeBuild">
