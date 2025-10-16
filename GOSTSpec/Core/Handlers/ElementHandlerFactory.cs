@@ -4,9 +4,6 @@ using System.Collections.Generic;
 
 namespace GOSTSpec.Core.Handlers
 {
-    /// <summary>
-    /// Фабрика для создания обработчиков элементов
-    /// </summary>
     public class ElementHandlerFactory
     {
         private readonly Dictionary<BuiltInCategory, IElementHandler> _handlers;
@@ -31,21 +28,32 @@ namespace GOSTSpec.Core.Handlers
                 { CategoryConstants.DuctInsulation, new DuctInsulationHandler() },
                 { CategoryConstants.DuctFittings, new GeneralElementHandler(CategoryConstants.DuctFittings) },
                 { CategoryConstants.DuctAccessories, new GeneralElementHandler(CategoryConstants.DuctAccessories) },
-                { CategoryConstants.AirTerminals, new GeneralElementHandler(CategoryConstants.AirTerminals) }
+                { CategoryConstants.AirTerminals, new GeneralElementHandler(CategoryConstants.AirTerminals) },
+
+                // 🆕 ЭЛЕКТРИКА
+                { CategoryConstants.CableTray, new CableTrayHandler() },
+                { CategoryConstants.Conduits, new ConduitHandler() },
+                { CategoryConstants.ElectricalFixtures, new ElectricalFixtureHandler() },
+                { CategoryConstants.ElectricalEquipment, new GeneralElementHandler(CategoryConstants.ElectricalEquipment) },
+                { CategoryConstants.LightingFixtures, new LightingFixtureHandler() },
+                { CategoryConstants.CableTrayFitting, new GeneralElementHandler(CategoryConstants.CableTrayFitting) },
+                { CategoryConstants.ConduitFittings, new GeneralElementHandler(CategoryConstants.ConduitFittings) },
+
+                // 🆕 СЛАБОТОЧКА
+                { CategoryConstants.DataDevices, new DataDeviceHandler() },
+                { CategoryConstants.TelephoneDevices, new CommunicationDeviceHandler(CategoryConstants.TelephoneDevices) },
+                { CategoryConstants.SecurityDevices, new CommunicationDeviceHandler(CategoryConstants.SecurityDevices) },
+                { CategoryConstants.FireAlarmDevices, new CommunicationDeviceHandler(CategoryConstants.FireAlarmDevices) },
+                { CategoryConstants.NurseCallDevices, new CommunicationDeviceHandler(CategoryConstants.NurseCallDevices) },
+                { CategoryConstants.CommunicationDevices, new CommunicationDeviceHandler(CategoryConstants.CommunicationDevices) }
             };
         }
 
-        /// <summary>
-        /// Получить обработчик для категории
-        /// </summary>
         public IElementHandler GetHandler(BuiltInCategory category)
         {
             return _handlers.TryGetValue(category, out var handler) ? handler : null;
         }
 
-        /// <summary>
-        /// Получить обработчик для элемента
-        /// </summary>
         public IElementHandler GetHandler(Element element)
         {
             if (element?.Category == null)
@@ -55,17 +63,11 @@ namespace GOSTSpec.Core.Handlers
             return GetHandler(category);
         }
 
-        /// <summary>
-        /// Получить все доступные обработчики
-        /// </summary>
         public IEnumerable<IElementHandler> GetAllHandlers()
         {
             return _handlers.Values;
         }
 
-        /// <summary>
-        /// Получить все категории, для которых есть обработчики
-        /// </summary>
         public IEnumerable<BuiltInCategory> GetSupportedCategories()
         {
             return _handlers.Keys;

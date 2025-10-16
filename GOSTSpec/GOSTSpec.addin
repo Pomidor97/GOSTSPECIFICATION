@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RevitAddIns>
+  <AddIn Type="Application">
+    <Name>GOSTSpec - Оформление спецификации по ГОСТ</Name>
+    <Assembly>GOSTSpec.dll</Assembly>
+    <FullClassName>GOSTSpec.Infrastructure.App</FullClassName>
+    <ClientId>18A48815-B38F-49DC-86A4-F82FD3615A60</ClientId>
+    <VendorId>com.nursultan</VendorId>
+    <VendorDescription>Yessirkegenov Nursultan</VendorDescription>
+  </AddIn>
+</RevitAddIns>

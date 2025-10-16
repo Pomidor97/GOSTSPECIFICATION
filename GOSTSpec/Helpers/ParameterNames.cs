@@ -7,6 +7,7 @@
     {
         // Системные параметры
         public const string System = "С_Система";
+        public const string RevitSystemName = "Имя системы";
         public const string Order = "С_Сортировка";
         public const string Position = "С_Позиция";
 

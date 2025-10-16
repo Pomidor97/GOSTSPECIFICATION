@@ -1,4 +1,4 @@
-﻿namespace GOSTSpec.Helpers
+﻿namespace GOSTSpec.Constants
 {
     public class ErrorMessages
     {

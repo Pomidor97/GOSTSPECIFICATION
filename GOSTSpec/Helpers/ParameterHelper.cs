@@ -45,11 +45,29 @@ namespace GOSTSpec.Helpers
         }
 
         /// <summary>
+        /// Безопасное получение строкового значения параметра (с выбором типа/экземпляра)
+        /// </summary>
+        public string GetStringValue(Element element, string parameterName, bool typeParameter, string defaultValue = "")
+        {
+            var param = GetParameter(element, parameterName, typeParameter);
+            return param?.HasValue == true ? param.AsString() ?? defaultValue : defaultValue;
+        }
+
+        /// <summary>
         /// Безопасное получение числового значения параметра
         /// </summary>
         public double GetDoubleValue(Element element, string parameterName, double defaultValue = 0.0)
         {
             var param = GetParameter(element, parameterName);
+            return param?.HasValue == true ? param.AsDouble() : defaultValue;
+        }
+
+        /// <summary>
+        /// Безопасное получение числового значения параметра (с выбором типа/экземпляра)
+        /// </summary>
+        public double GetDoubleValue(Element element, string parameterName, bool typeParameter, double defaultValue = 0.0)
+        {
+            var param = GetParameter(element, parameterName, typeParameter);
             return param?.HasValue == true ? param.AsDouble() : defaultValue;
         }
 

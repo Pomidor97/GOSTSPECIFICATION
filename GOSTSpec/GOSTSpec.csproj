@@ -14,7 +14,7 @@
         <FileAlignment>512</FileAlignment>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
+        <PlatformTarget>x64</PlatformTarget>
         <DebugSymbols>true</DebugSymbols>
         <DebugType>full</DebugType>
         <Optimize>false</Optimize>
@@ -24,7 +24,7 @@
         <WarningLevel>4</WarningLevel>
     </PropertyGroup>
     <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <PlatformTarget>AnyCPU</PlatformTarget>
+        <PlatformTarget>x64</PlatformTarget>
         <DebugType>pdbonly</DebugType>
         <Optimize>true</Optimize>
         <OutputPath>bin\Release\</OutputPath>
@@ -55,7 +55,12 @@
         <Compile Include="Core\Commands\CopyParametersCommand.cs" />
         <Compile Include="Core\Commands\NumberingCommand.cs" />
         <Compile Include="Core\Handlers\BaseElementHandler.cs" />
+        <Compile Include="Core\Handlers\CableTrayHandler.cs" />
+        <Compile Include="Core\Handlers\CommunicationDeviceHandler.cs" />
+        <Compile Include="Core\Handlers\ConduitHandler.cs" />
+        <Compile Include="Core\Handlers\DataDeviceHandler.cs" />
         <Compile Include="Core\Handlers\DuctHandler.cs" />
+        <Compile Include="Core\Handlers\ElectricalFixtureHandler.cs" />
         <Compile Include="Core\Handlers\ElementHandlerFactory.cs" />
         <Compile Include="Core\Handlers\EquipmentHandler.cs" />
         <Compile Include="Core\Handlers\FittingHandler.cs" />
@@ -63,6 +68,7 @@
         <Compile Include="Core\Handlers\GeneralElementHandler.cs" />
         <Compile Include="Core\Handlers\IElementHandler.cs" />
         <Compile Include="Core\Handlers\InsulationHandler.cs" />
+        <Compile Include="Core\Handlers\LightingFixtureHandler.cs" />
         <Compile Include="Core\Handlers\PipeHandler.cs" />
         <Compile Include="Core\Services\NumberingService.cs" />
         <Compile Include="Core\Services\ParameterCopyService.cs" />
@@ -78,11 +84,13 @@
         <Compile Include="Models\ParameterMapping.cs" />
         <Compile Include="Models\SystemInfo.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
+        <EmbeddedResource Include="Properties\Resources.resx" />
     </ItemGroup>
     <ItemGroup>
       <Folder Include="Resources\" />
     </ItemGroup>
     <ItemGroup>
+      <Content Include="GOSTSpec.addin" />
       <Content Include="README.md" />
     </ItemGroup>
     <ItemGroup>
