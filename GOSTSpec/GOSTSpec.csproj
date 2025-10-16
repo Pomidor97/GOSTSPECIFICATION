@@ -85,12 +85,18 @@
         <Compile Include="Models\SystemInfo.cs" />
         <Compile Include="Properties\AssemblyInfo.cs"/>
         <EmbeddedResource Include="Properties\Resources.resx" />
-    </ItemGroup>
-    <ItemGroup>
-      <Folder Include="Resources\" />
+        <EmbeddedResource Include="Resources\icons8_copy_32.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </EmbeddedResource>
+        <EmbeddedResource Include="Resources\icons8_counter_32.png">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </EmbeddedResource>
     </ItemGroup>
     <ItemGroup>
       <Content Include="GOSTSpec.addin" />
+      <EmbeddedResource Include="Resources\icons8_schedule_32.png">
+        <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      </EmbeddedResource>
       <Content Include="README.md" />
     </ItemGroup>
     <ItemGroup>

@@ -10,6 +10,8 @@
         public const string RevitSystemName = "Имя системы";
         public const string Order = "С_Сортировка";
         public const string Position = "С_Позиция";
+        public const string UnderGroup = "Подгруппа";
+
 
         // Исходные параметры (источник)
         public const string SourceName = "KAZGOR_Наименование";

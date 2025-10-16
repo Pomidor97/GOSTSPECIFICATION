@@ -27,8 +27,6 @@ namespace GOSTSpec.Core.Services
             if (document == null)
                 throw new ArgumentNullException(nameof(document));
 
-            // ВРЕМЕННО: Диагностика (потом удалить)
-            DiagnoseNestedFamilies(document);
 
             var reserveCoefficient = _elementHelper.GetGlobalParameter(document, ParameterNames.GlobalReserve, 1.0);
 
@@ -36,6 +34,9 @@ namespace GOSTSpec.Core.Services
             int nestedCopied = ProcessSystemNames(document);
             int revitSystemCopied = CopyRevitSystemNameToCustomParameter(document);
             int connectorCopied = CopySystemFromHostElements(document);
+
+            // ✅ НОВОЕ: Копирование подгруппы для ЭЛ/СС
+            int subgroupCopied = CopySubgroupForElectricalAndLowVoltage(document);
 
             // Обработка параметров элементов (ДЛЯ ВСЕХ категорий, включая электрику)
             foreach (var category in _handlerFactory.GetSupportedCategories())
@@ -46,15 +47,161 @@ namespace GOSTSpec.Core.Services
             // Финальное сообщение
             TaskDialog.Show("Успех",
                 $"Копирование параметров завершено!\n\n" +
-                $"Системы (ВК/ОВ):\n" +
+                $"ВК/ОВ (Имя системы → С_Система):\n" +
                 $"• Вложенные: {nestedCopied}\n" +
                 $"• Из Revit (MEP): {revitSystemCopied}\n" +
                 $"• Через коннекторы: {connectorCopied}\n\n" +
+                $"ЭЛ/СС (Подгруппа → С_Система): {subgroupCopied}\n\n" +
                 $"Запас: {reserveCoefficient:F2}");
         }
 
         /// <summary>
+        /// Копирование подгруппы для электрики и слаботочки
+        /// Берем из встроенного параметра "Подгруппа" → записываем в "С_Система"
+        /// Также обрабатывает вложенные семейства ЭЛ/СС
+        /// </summary>
+        private int CopySubgroupForElectricalAndLowVoltage(Document document)
+        {
+            int copiedCount = 0;
+
+            // ✅ ТОЛЬКО категории ЭЛ/СС
+            var electricalCategories = new[]
+            {
+                // Электрика
+                CategoryConstants.CableTray,
+                CategoryConstants.CableTrayFitting,
+                CategoryConstants.Conduits,
+                CategoryConstants.ConduitFittings,
+                CategoryConstants.ElectricalFixtures,
+                CategoryConstants.ElectricalEquipment,
+                CategoryConstants.LightingFixtures,
+                
+                // Слаботочка
+                CategoryConstants.DataDevices,
+                CategoryConstants.TelephoneDevices,
+                CategoryConstants.SecurityDevices,
+                CategoryConstants.FireAlarmDevices,
+                CategoryConstants.NurseCallDevices,
+                CategoryConstants.CommunicationDevices
+            };
+
+            foreach (var category in electricalCategories)
+            {
+                var elements = _elementHelper.GetElementsByCategory(document, category);
+
+                foreach (var element in elements)
+                {
+                    try
+                    {
+                        // Проверяем, не заполнен ли уже параметр С_Система
+                        var existingSubgroup = _parameterHelper.GetStringValue(element, ParameterNames.System);
+                        
+                        if (string.IsNullOrEmpty(existingSubgroup))
+                        {
+                            string subgroupValue = null;
+                            
+                            // ═══ ОБРАБОТКА ВЛОЖЕННЫХ СЕМЕЙСТВ ═══
+                            if (element is FamilyInstance familyInstance)
+                            {
+                                var rootFamily = _elementHelper.GetRootFamily(familyInstance);
+                                
+                                // Если это вложенное семейство - берем подгруппу из root
+                                if (familyInstance.Id != rootFamily.Id)
+                                {
+                                    // Пробуем взять С_Система из root (там уже может быть подгруппа)
+                                    subgroupValue = _parameterHelper.GetStringValue(rootFamily, ParameterNames.System);
+                                    
+                                    // Если в root нет С_Система, берем подгруппу из root
+                                    if (string.IsNullOrEmpty(subgroupValue))
+                                    {
+                                        subgroupValue = GetSubgroupFromElement(rootFamily);
+                                    }
+                                    
+                                    if (!string.IsNullOrEmpty(subgroupValue))
+                                    {
+                                        if (_parameterHelper.TrySetValue(familyInstance, ParameterNames.System, subgroupValue))
+                                        {
+                                            copiedCount++;
+                                        }
+                                        continue; // Переходим к следующему элементу
+                                    }
+                                }
+                            }
+                            
+                            // ═══ ОБЫЧНЫЕ ЭЛЕМЕНТЫ (не вложенные) ═══
+                            subgroupValue = GetSubgroupFromElement(element);
+                            
+                            // Если нашли подгруппу - записываем
+                            if (!string.IsNullOrEmpty(subgroupValue))
+                            {
+                                if (_parameterHelper.TrySetValue(element, ParameterNames.System, subgroupValue))
+                                {
+                                    copiedCount++;
+                                }
+                            }
+                        }
+                    }
+                    catch { }
+                }
+            }
+
+            return copiedCount;
+        }
+        
+        /// <summary>
+        /// Получение подгруппы из элемента (несколько способов)
+        /// </summary>
+        private string GetSubgroupFromElement(Element element)
+        {
+            string subgroupValue = null;
+            
+            // Вариант 1: Прямой параметр "Подгруппа"
+            subgroupValue = _parameterHelper.GetStringValue(element, "Подгруппа");
+            
+            // Вариант 2: Через LookupParameter
+            if (string.IsNullOrEmpty(subgroupValue))
+            {
+                var subgroupParam = element.LookupParameter("Подгруппа");
+                if (subgroupParam != null && subgroupParam.HasValue)
+                {
+                    subgroupValue = subgroupParam.AsString();
+                    if (string.IsNullOrEmpty(subgroupValue))
+                        subgroupValue = subgroupParam.AsValueString();
+                }
+            }
+            
+            // Вариант 3: Через встроенный параметр ALL_MODEL_FAMILY_NAME (Подгруппа)
+            if (string.IsNullOrEmpty(subgroupValue))
+            {
+                var builtInParam = element.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME);
+                if (builtInParam != null && builtInParam.HasValue)
+                {
+                    subgroupValue = builtInParam.AsString();
+                    if (string.IsNullOrEmpty(subgroupValue))
+                        subgroupValue = builtInParam.AsValueString();
+                }
+            }
+            
+            // Вариант 4: Для семейств - берем из типа
+            if (string.IsNullOrEmpty(subgroupValue) && element is FamilyInstance familyInstance)
+            {
+                var familySymbol = familyInstance.Symbol;
+                if (familySymbol != null)
+                {
+                    var familyNameParam = familySymbol.get_Parameter(BuiltInParameter.ALL_MODEL_FAMILY_NAME);
+                    if (familyNameParam != null && familyNameParam.HasValue)
+                    {
+                        subgroupValue = familyNameParam.AsString();
+                    }
+                }
+            }
+            
+            return subgroupValue;
+        }
+
+        /// <summary>
         /// Копирование системы из вложенных семейств (только ВК/ОВ)
+        /// Для ЭЛ/СС вложенные обрабатываются отдельно в CopySubgroupForElectricalAndLowVoltage
         /// </summary>
         private int ProcessSystemNames(Document document)
         {
@@ -80,6 +227,8 @@ namespace GOSTSpec.Core.Services
                 CategoryConstants.DuctAccessories,
                 CategoryConstants.DuctInsulation,
                 CategoryConstants.AirTerminals
+                
+                // ❌ ЭЛ/СС категории НЕ включены - для них своя логика
             };
 
             foreach (var category in mepCategories)
@@ -325,70 +474,5 @@ namespace GOSTSpec.Core.Services
 
             return false;
         }
-        
-        /// <summary>
-/// Диагностика вложенных семейств
-/// </summary>
-private void DiagnoseNestedFamilies(Document document)
-{
-    try
-    {
-        string info = "🔍 ДИАГНОСТИКА ВЛОЖЕННЫХ СЕМЕЙСТВ:\n\n";
-        
-        var testCategories = new[]
-        {
-            CategoryConstants.PipeFittings,
-            CategoryConstants.PlumbingFixtures,
-            CategoryConstants.MechanicalEquipment
-        };
-        
-        int totalNested = 0;
-        int withSystem = 0;
-        
-        foreach (var category in testCategories)
-        {
-            var elements = _elementHelper.GetElementsByCategory(document, category);
-            
-            foreach (var element in elements)
-            {
-                if (element is FamilyInstance familyInstance)
-                {
-                    var rootFamily = _elementHelper.GetRootFamily(familyInstance);
-                    
-                    if (familyInstance.Id != rootFamily.Id)
-                    {
-                        totalNested++;
-                        
-                        var rootSystemName = _parameterHelper.GetStringValue(rootFamily, ParameterNames.System);
-                        var currentSystemName = _parameterHelper.GetStringValue(familyInstance, ParameterNames.System);
-                        
-                        if (!string.IsNullOrEmpty(rootSystemName))
-                            withSystem++;
-                        
-                        if (totalNested <= 3) // Показываем первые 3
-                        {
-                            info += $"═══ ВЛОЖЕННОЕ #{totalNested} ═══\n";
-                            info += $"Категория: {element.Category?.Name}\n";
-                            info += $"Element ID: {familyInstance.Id}\n";
-                            info += $"Root ID: {rootFamily.Id}\n";
-                            info += $"Root система: '{rootSystemName ?? "ПУСТО"}'\n";
-                            info += $"Current система: '{currentSystemName ?? "ПУСТО"}'\n\n";
-                        }
-                    }
-                }
-            }
-        }
-        
-        info += $"═══ ИТОГО ═══\n";
-        info += $"Всего вложенных: {totalNested}\n";
-        info += $"С системой в root: {withSystem}\n";
-        
-        TaskDialog.Show("Диагностика вложенных", info);
-    }
-    catch (Exception ex)
-    {
-        TaskDialog.Show("Ошибка", ex.Message + "\n\n" + ex.StackTrace);
-    }
-}
     }
 }
